@@ -9,14 +9,14 @@ app = Flask(__name__)
 def index():
     # register a new dialect to define custom delimiter that is not ',' (so ';' is considered as column separator)
     csv.register_dialect('myDialect', delimiter = ';')
-    
+
     # read csv data
-    with open('./Datensatz_Coding_Challenge.csv', 'r', encoding='utf-8', errors='replace') as csvFile:
+    with open('./Datensatz_Coding_Challenge.csv', 'r', encoding='latin', errors='replace') as csvFile:
         reader = csv.reader(csvFile, dialect='myDialect')
         for row in reader:
             print(row)
     csvFile.close()
-    
+
     return render_template('index.html')
 
 #TODO change this for production! (debug=True only for dev mode)
