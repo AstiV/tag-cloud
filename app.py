@@ -54,13 +54,15 @@ def index():
     tokenizer = nltk.tokenize.TreebankWordTokenizer()
     for row in dataDict:
         row['sentences'] = sent_tokenize(row['text'])
+        row['words'] = []
         for sentence in row['sentences']:
-            row['words'] = tokenizer.tokenize(sentence)
-            # remove stopwords
-            stopWords = set(stopwords.words('german'))
-            row['filteredSentence'] = [w for w in row['words'] if not w in stopWords]
+            row['words'].extend(tokenizer.tokenize(sentence))
+        # remove stopwords
+        stopWords = set(stopwords.words('german'))
+        row['filteredSentence'] = [w for w in row['words'] if not w in stopWords]
+
             
-    print(dataDict)
+    print(dataDict[-2])
 
 
     return render_template('index.html')
