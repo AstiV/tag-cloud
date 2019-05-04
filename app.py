@@ -53,17 +53,27 @@ def index():
     # sentences and words
     tokenizer = nltk.tokenize.TreebankWordTokenizer()
     for row in dataDict:
-        row['sentences'] = sent_tokenize(row['text'])
+        row['sentences'] = sent_tokenize(row['text'], language='german')
         row['words'] = []
         for sentence in row['sentences']:
             row['words'].extend(tokenizer.tokenize(sentence))
         # remove stopwords
         stopWords = set(stopwords.words('german'))
         row['filteredSentence'] = [w for w in row['words'] if not w in stopWords]
+        
+    #print(dataDict[-2])
 
-            
-    print(dataDict[-2])
-
+    dictionary = {
+        'StyleID': '9743730', 
+        'text': 'Leider habe ich die falsche Größe bestellt. Nun bestelle ich die richtige Größe, da die Vorhänge sehr gut zu meiner Einrichtung passen und das Material sich gut anfühlt. Ob es die Eigenschaften erfüllt, die beschrieben sind, werde ich erst später erfahren.', 
+        'rating': '4', 
+        'sentences': ['Leider habe ich die falsche Größe bestellt.', 'Nun bestelle ich die richtige Größe, da die Vorhänge sehr gut zu meiner Einrichtung passen und das Material sich gut anfühlt.', 'Ob es die Eigenschaften erfüllt, die beschrieben sind, werde ich erst später erfahren.'], 
+        'words': ['Leider', 'habe', 'ich', 'die', 'falsche', 'Größe', 'bestellt', '.', 'Nun', 'bestelle', 'ich', 'die', 'richtige', 'Größe', ',', 'da', 'die', 'Vorhänge', 'sehr', 'gut', 'zu', 'meiner', 'Einrichtung', 'passen', 'und', 'das', 'Material', 'sich', 'gut', 'anfühlt', '.', 'Ob', 'es', 'die', 'Eigenschaften', 'erfüllt', ',', 'die', 'beschrieben', 'sind', ',', 'werde', 'ich', 'erst', 'später', 'erfahren', '.'], 
+        'filteredSentence': ['Leider', 'falsche', 'Größe', 'bestellt', '.', 'Nun', 'bestelle', 'richtige', 'Größe', ',', 'Vorhänge', 'gut', 'Einrichtung', 'passen', 'Material', 'gut', 'anfühlt', '.', 'Ob', 'Eigenschaften', 'erfüllt', ',', 'beschrieben', ',', 'erst', 'später', 'erfahren', '.']
+        }
+    
+    dictionary['taggedSentence'] = nltk.pos_tag(dictionary['filteredSentence'], tagset = 'universal'),
+    print(dictionary)
 
     return render_template('index.html')
 
