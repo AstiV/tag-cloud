@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# Set these paths appropriately
+
+BIN="/Users/Asti/Documents/Projects/bon-prix/tag-cloud/TreeTagger/bin"
+CMD="/Users/Asti/Documents/Projects/bon-prix/tag-cloud/TreeTagger/cmd"
+LIB="/Users/Asti/Documents/Projects/bon-prix/tag-cloud/TreeTagger/lib"
+
+TOKENIZER=${BIN}/separate-punctuation
+SPLITTER=${CMD}/portuguese-splitter.perl
+TAGGER=${BIN}/tree-tagger
+ABBR_LIST=${LIB}/portuguese-abbreviations
+POST_TAGGING=${CMD}/portuguese-post-tagging
+PARFILE=${LIB}/portuguese-finegrained.par
+
+# splitting 
+$SPLITTER $* |
+# pre-tokenization
+sed "s/\([\)\"\'\?\!]\)\([\.\,\;\:]\)/ \1 \2/g" |
+# tokenizing
+$TOKENIZER +1 +s +l $ABBR_LIST |
+# remove empty lines
+grep -v '^$' |
+# tagging
+$TAGGER $PARFILE -token -lemma -sgml | 
+$POST_TAGGING -yes

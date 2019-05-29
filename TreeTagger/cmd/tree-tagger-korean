@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# Set these paths appropriately
+
+BIN="/Users/Asti/Documents/Projects/bon-prix/tag-cloud/TreeTagger/bin"
+CMD="/Users/Asti/Documents/Projects/bon-prix/tag-cloud/TreeTagger/cmd"
+LIB="/Users/Asti/Documents/Projects/bon-prix/tag-cloud/TreeTagger/lib"
+
+OPTIONS="-token -lemma -sgml"
+
+TAGGER=${BIN}/tree-tagger
+TOKENIZER=${CMD}/tokenize-korean.pl
+PARFILE=${LIB}/korean.par
+
+$TOKENIZER $* |
+$TAGGER $OPTIONS $PARFILE |
+$CMD/add-korean-sentence-markers.pl |
+$CMD/reformat-korean-tagger-output.pl

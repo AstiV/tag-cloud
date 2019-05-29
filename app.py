@@ -4,6 +4,9 @@ import nltk
 from nltk import sent_tokenize, word_tokenize
 from nltk.corpus import stopwords
 
+import treetaggerwrapper as ttpw
+tagger = ttpw.TreeTagger(TAGLANG='de', TAGDIR="/Users/Asti/Documents/Projects/bon-prix/tag-cloud/TreeTagger")
+
 # Configure application
 app = Flask(__name__)
 
@@ -49,7 +52,7 @@ def index():
          {'StyleID': '9743730', 'text': 'Leider habe ich die falsche Größe bestellt. Nun bestelle ich die richtige Größe, da die Vorhänge sehr gut zu meiner Einrichtung passen und das Material sich gut anfühlt. Ob es die Eigenschaften erfüllt, die beschrieben sind, werde ich erst später erfahren.', 'rating': '4'}, 
          {'StyleID': '8623725', 'text': 'Der badeanzug passte in gr.50 überhaupt nicht.der beinausschnitt ist vieeeel zu gross...und oben im brustbereich sehr nach unten ziehend.', 'rating': '1'}
     ]
-
+    
     # sentences and words
     tokenizer = nltk.tokenize.TreebankWordTokenizer()
     for row in dataDict:
@@ -61,7 +64,25 @@ def index():
         stopWords = set(stopwords.words('german'))
         row['filteredSentence'] = [w for w in row['words'] if not w in stopWords]
         
-    #print(dataDict[-2])
+        # part of speech tagging (POS) and lemmatization
+        # lemmatization was used instead of stemming, as stemming does not necessarily result in an actual word
+        # whereas lemma is an actual language word
+        # https://www.datacamp.com/community/tutorials/stemming-lemmatization-python
+        row['taggedSentence'] = tagger.tag_text(row['filteredSentence'])
+        row['taggedSentence2'] = ttpw.make_tags(row['taggedSentence'], allow_extra=True)
+        
+        # Count lemmas of each product
+        # 
+        for tag in row['taggedSentence2']:
+            print(tag)
+
+        # print(row['taggedSentence2'])
+    
+
+        
+    
+    #print(dataDict)
+    # print(dataDict[-2])
 
     dictionary = {
         'StyleID': '9743730', 
@@ -70,10 +91,25 @@ def index():
         'sentences': ['Leider habe ich die falsche Größe bestellt.', 'Nun bestelle ich die richtige Größe, da die Vorhänge sehr gut zu meiner Einrichtung passen und das Material sich gut anfühlt.', 'Ob es die Eigenschaften erfüllt, die beschrieben sind, werde ich erst später erfahren.'], 
         'words': ['Leider', 'habe', 'ich', 'die', 'falsche', 'Größe', 'bestellt', '.', 'Nun', 'bestelle', 'ich', 'die', 'richtige', 'Größe', ',', 'da', 'die', 'Vorhänge', 'sehr', 'gut', 'zu', 'meiner', 'Einrichtung', 'passen', 'und', 'das', 'Material', 'sich', 'gut', 'anfühlt', '.', 'Ob', 'es', 'die', 'Eigenschaften', 'erfüllt', ',', 'die', 'beschrieben', 'sind', ',', 'werde', 'ich', 'erst', 'später', 'erfahren', '.'], 
         'filteredSentence': ['Leider', 'falsche', 'Größe', 'bestellt', '.', 'Nun', 'bestelle', 'richtige', 'Größe', ',', 'Vorhänge', 'gut', 'Einrichtung', 'passen', 'Material', 'gut', 'anfühlt', '.', 'Ob', 'Eigenschaften', 'erfüllt', ',', 'beschrieben', ',', 'erst', 'später', 'erfahren', '.']
+        # 'taggedSentence': ['Leider\tADV\tleider', 'falsche\tADJA\tfalsch', 'Größe\tNN\tGröße', 'bestellt\tVVPP\tbestellen', 
+        #     '.\t$.\t.', 'Nun\tADV\tnun', 'bestelle\tVVFIN\tbestellen', 'richtige\tADJA\trichtig', 'Größe\tNN\tGröße', 
+        #     ',\t$,\t,', 'Vorhänge\tNN\tVorhang', 'gut\tADJD\tgut', 'Einrichtung\tNN\tEinrichtung', 'passen\tVVFIN\tpassen',
+        #     'Material\tNN\tMaterial', 'gut\tADJD\tgut', 'anfühlt\tVVFIN\tanfühlen', '.\t$.\t.', 'Ob\tKOUS\tob', 'Eigenschaften\tNN\tEigenschaft',
+        #     'erfüllt\tVVPP\terfüllen', ',\t$,\t,', 'beschrieben\tVVPP\tbeschreiben', ',\t$,\t,', 'erst\tADV\terst', 'später\tADJD\tspät', 
+        #     'erfahren\tVVPP\terfahren', '.\t$.\t.']
+        # 'taggedSentence2': [Tag(word='Leider', pos='ADV', lemma='leider'), Tag(word='falsche', pos='ADJA', lemma='falsch'), 
+        # Tag(word='Größe', pos='NN', lemma='Größe'), Tag(word='bestellt', pos='VVPP', lemma='bestellen'), 
+        # Tag(word='.', pos='$.', lemma='.'), Tag(word='Nun', pos='ADV', lemma='nun'), Tag(word='bestelle', pos='VVFIN', lemma='bestellen'), 
+        # Tag(word='richtige', pos='ADJA', lemma='richtig'), Tag(word='Größe', pos='NN', lemma='Größe'), Tag(word=',', pos='$,', lemma=','), 
+        # Tag(word='Vorhänge', pos='NN', lemma='Vorhang'), Tag(word='gut', pos='ADJD', lemma='gut'), Tag(word='Einrichtung', pos='NN', lemma='Einrichtung'), 
+        # Tag(word='passen', pos='VVFIN', lemma='passen'), Tag(word='Material', pos='NN', lemma='Material'), 
+        # Tag(word='gut', pos='ADJD', lemma='gut'), Tag(word='anfühlt', pos='VVFIN', lemma='anfühlen'), 
+        # Tag(word='.', pos='$.', lemma='.'), Tag(word='Ob', pos='KOUS', lemma='ob'), Tag(word='Eigenschaften', pos='NN', lemma='Eigenschaft'), 
+        # Tag(word='erfüllt', pos='VVPP', lemma='erfüllen'), Tag(word=',', pos='$,', lemma=','), 
+        # Tag(word='beschrieben', pos='VVPP', lemma='beschreiben'), Tag(word=',', pos='$,', lemma=','), 
+        # Tag(word='erst', pos='ADV', lemma='erst'), Tag(word='später', pos='ADJD', lemma='spät'), 
+        # Tag(word='erfahren', pos='VVPP', lemma='erfahren'), Tag(word='.', pos='$.', lemma='.')]
         }
-    
-    dictionary['taggedSentence'] = nltk.pos_tag(dictionary['filteredSentence'], tagset = 'universal'),
-    print(dictionary)
 
     return render_template('index.html')
 
